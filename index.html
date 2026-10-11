@@ -2,33 +2,35 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuk Script Local Network v3.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Nuk Script Live Network v3.0</title>
     <style>
         body { margin: 0; padding: 0; background-color: #1a1a1a; color: #ffffff; font-family: sans-serif; }
         .header { text-align: center; padding: 20px; background: #111; border-bottom: 2px solid #00ffcc; }
         h1 { margin: 0; color: #00ffcc; font-size: 24px; }
         .main-container { display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .canvas-area { background: #fff; border: 3px dashed #00ffcc; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        canvas { display: block; cursor: crosshair; }
+        .canvas-area { background: #fff; border: 3px dashed #00ffcc; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); touch-action: none; }
+        canvas { display: block; cursor: crosshair; touch-action: none; }
         .tools { margin-top: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
         button { padding: 8px 16px; background: #333; color: #fff; border: 1px solid #555; border-radius: 4px; font-weight: bold; cursor: pointer; }
         button:hover { background: #00ffcc; color: #000; border-color: #00ffcc; }
         .board-container { max-width: 800px; margin: 30px auto; background: #222; padding: 20px; border-radius: 8px; border: 1px solid #333; }
         textarea { width: 100%; height: 70px; background: #333; color: #fff; border: 1px solid #555; padding: 10px; box-sizing: border-box; resize: none; border-radius: 4px; }
+        input[type="text"] { width: 100%; padding: 8px; background: #333; color: #fff; border: 1px solid #555; border-radius: 4px; margin-top: 8px; box-sizing: border-box; }
         .feed { margin-top: 10px; max-height: 400px; overflow-y: auto; background: #151515; padding: 15px; border-radius: 4px; border: 1px solid #2a2a2a; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>🚀 Nuk-Artboard-Retro [Nuk Script Architecture V3.0 - Private Local]</h1>
-        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">ระบบกระจายข้อมูลออฟไลน์จำลอง: บันทึกข้อมูลปลอดภัย ล็อกติดฮาร์ดดิสก์ 100% ไร้แถบแดงแจ้งเตือน</p>
+        <h1>🚀 Nuk-Artboard-Retro [Nuk Script Architecture V3.0]</h1>
+        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">เวอร์ชันสัมผัสมือถือลื่นไหล: ล็อกหน้าจอไม่ให้เลื่อนเมื่อวาดภาพ เชื่อมฟีดโลกออนไลน์สด 24 ชม.</p>
     </div>
 
     <div class="main-container">
-        <div class="canvas-area">
-            <canvas id="canvas" width="800" height="400"></canvas>
+        <!-- 🎨 เพิ่มคำสั่ง touch-action: none ในเลเยอร์เพื่อสั่งล็อกจอมือถือไม่ให้ไถเลื่อนขึ้นลงตอนใช้นิ้วลากเส้น -->
+        <div class="canvas-area" style="touch-action: none;">
+            <canvas id="canvas" width="800" height="400" style="touch-action: none;"></canvas>
         </div>
         <div class="tools">
             <button id="toolPencil" onclick="setTool('pencil')" style="background:#00ffcc; color:#000; border:none;">✏️ ดินสอ</button>
@@ -43,17 +45,21 @@
     </div>
 
     <div class="board-container">
-        <h3>💬 กระดานโพสต์ฟีดข้อมูลส่วนตัว (Private Machine Storage)</h3>
-        <textarea id="tweetText" placeholder="สหายอยากแชร์ข้อความอะไรลงบอร์ดความจำเครื่อง..."></textarea>
-        <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
-            <div>🖼️ แนบไฟล์รูปภาพ: <input type="file" id="tweetImage" accept="image/*" style="color:#aaa;"></div>
-            <button onclick="sendLocalTweet()" style="background:#00ffcc; color:#000; border:none; padding:10px 25px;">🚀 โพสต์ลงบอร์ดเครื่อง</button>
+        <h3>💬 กระดานโพสต์ฟีดแชร์ข้อมูลออนไลน์เสรี (Global Live Network)</h3>
+        <textarea id="tweetText" placeholder="สหายอยากแชร์ความคิดเห็นอะไรลงฟีดโลก..."></textarea>
+        <input type="text" id="tweetImageUrl" placeholder="🔗 แปะลิงก์ที่อยู่รูปภาพตรงนี้เพื่อแชร์ลงฟีดโลก">
+
+        <div style="margin-top:10px; text-align:right;">
+            <button onclick="sendTweetToServer()" style="background:#00ffcc; color:#000; border:none; padding:10px 30px; font-weight:bold;">🚀 โพสต์ลงฟีดโลกสด</button>
         </div>
-        <div style="margin-top:15px; text-align:right;">
-            <button onclick="clearLocalHistory()" style="color:#ff3333; border-color:#ff3333; font-size:12px; background:none; cursor:pointer;">🧹 ล้างประวัติฟีดทั้งหมด</button>
+        
+        <div style="margin-top:15px; text-align:left; display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:#aaa; font-size:12px;">🔄 ระบบสุ่มอัปเดตฟีดคนอื่นอัตโนมัติทุกๆ 15 วินาที</span>
+            <button onclick="loadCloudTweets()" style="color:#00ffcc; border-color:#00ffcc; font-size:12px; background:none; cursor:pointer;">🔄 ดึงฟีดสดเดี๋ยวนี้</button>
         </div>
+        
         <div class="feed" id="twitterFeed">
-            <!-- พื้นที่ดึงข้อมูลความจำถาวรภายในเครื่อง -->
+            <div style="padding:10px; color:#888; text-align:center;">กำลังเชื่อมต่อท่อส่งสัญญาณออนไลน์เสรี...</div>
         </div>
     </div>
 
@@ -79,6 +85,7 @@
             document.getElementById("toolBucket").style.color = (tool === "bucket") ? "#000" : "#fff";
         }
         
+        // --- 🕹️ โค้ลกลไกคุมสัญญาณเมาส์คอมพิวเตอร์ตามปกติ ---
         cvs.addEventListener("mousedown", () => {
             if (currentTool === "bucket") {
                 ctx.fillStyle = document.getElementById("penColor").value;
@@ -95,68 +102,62 @@
             ctx.lineTo(e.clientX - r.left, e.clientY - r.top);
             ctx.stroke(); ctx.beginPath(); ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
         });
+
+        // --- 📱 ปลดล็อกอาวุธ: ท่อดักรับสัญญาณนิ้วมือถือ (Touch Events) เพื่อสั่งวาดบนมือถือได้จริง ---
+        cvs.addEventListener("touchstart", (e) => {
+            if (currentTool === "bucket") {
+                ctx.fillStyle = document.getElementById("penColor").value;
+                ctx.fillRect(0, 0, cvs.width, cvs.height);
+            } else { draw = true; }
+        });
+        cvs.addEventListener("touchend", () => { ctx.beginPath(); draw = false; });
+        cvs.addEventListener("touchmove", (e) => {
+            if(!draw || currentTool === "bucket") return;
+            // สั่งยกเลิกคำสั่งไถเลื่อนหน้าจอของระบบปฏิบัติการมือถือขัดขวางเส้นหมึก
+            e.preventDefault(); 
+            const r = cvs.getBoundingClientRect();
+            const touch = e.touches[0]; // ดักพิกัดนิ้วแรกที่จิ้มจอ
+            ctx.lineWidth = penSize.value;
+            ctx.lineCap = "round";
+            ctx.strokeStyle = (currentTool === "eraser") ? "#ffffff" : document.getElementById("penColor").value;
+            ctx.lineTo(touch.clientX - r.left, touch.clientY - r.top);
+            ctx.stroke(); ctx.beginPath(); ctx.moveTo(touch.clientX - r.left, touch.clientY - r.top);
+        }, { passive: false });
         
         function clearCanvas() { ctx.clearRect(0, 0, cvs.width, cvs.height); initCanvasBackground(); }
         
         document.getElementById("saveImgBtn").addEventListener("click", () => {
             const link = document.createElement("a");
-            link.download = "nuk-artwork.png";
+            link.download = "nuk-masterpiece.png";
             link.href = cvs.toDataURL("image/png");
             link.click();
         });
 
-        // 🔒 ระบบฐานข้อมูลนิรภัยฝังในเครื่อง (Local Machine Engine - ไร้แถบแดง ไร้คลาวด์สะดุด 100%)
+        // --- 🌐 ท่อสัญญาณคลาวด์โลกออนไลน์เสรี ---
         const feed = document.getElementById("twitterFeed");
+        const FIREBASE_URL = "https://firebasedatabase.app";
 
-        function loadLocalData() {
-            const storedData = localStorage.getItem("nuk_private_db_v3");
-            if (storedData && storedData.trim() !== "") {
-                feed.innerHTML = storedData;
-            } else {
-                feed.innerHTML = "<div style='padding:15px; border-bottom:1px solid #222; font-size:14px; color:#888; text-align:center;'>🤖 ยินดีต้อนรับสู่เซฟโซนออฟไลน์ถาวรของสหายค่ะ! บัญชีข้อมูลและฟีดภาพวาดถูกล็อกติด SSD ในคอมเครื่องนี้เรียบร้อย ปลอดภัยจากกำแพงไฟร์วอลล์และคลาวด์สะดุด 100% แล้วค่ะ!</div>";
-            }
+        async function loadCloudTweets() {
+            try {
+                const res = await fetch(FIREBASE_URL);
+                const data = await res.json();
+                if (data) {
+                    let compiledHtml = "";
+                    Object.keys(data).reverse().forEach(key => { compiledHtml += data[key].html; });
+                    feed.innerHTML = compiledHtml;
+                } else {
+                    feed.innerHTML = "<div style='padding:10px; color:#888; text-align:center;'>บอร์ดออนไลน์เสรีว่างเปล่า ยินดีต้อนรับสหายเข้ามาระเบิดโพสต์แรกค่ะ!</div>";
+                }
+            } catch (err) { feed.innerHTML = "<div style='color:#888; padding:10px; text-align:center;'>📬 กำลังคอยสัญญาณดึงข้อมูลสดจากฟีดโลก...</div>"; }
         }
 
-        function sendLocalTweet() {
+        async function sendTweetToServer() {
             const txtInput = document.getElementById("tweetText");
-            const imgInput = document.getElementById("tweetImage");
-            if (!txtInput.value.trim() && imgInput.files.length === 0) return;
-
+            const imgUrlInput = document.getElementById("tweetImageUrl");
+            if (!txtInput.value.trim() && !imgUrlInput.value.trim()) return;
             const timeString = new Date().toLocaleString("th-TH");
-            
-            const appendAndSave = (imgHtmlCode) => {
-                const newPost = "<div style='padding:15px; border-bottom:1px solid #222; font-size:14px; line-height:1.5; background:#1e1e1e; margin-bottom:8px; border-radius:4px;'><small style='color:#00ffcc;'>[" + timeString + " - สหายเจ้าของเครื่อง]</small><br>" + txtInput.value + imgHtmlCode + "</div>";
-                
-                // แทรกโพสต์ใหม่ลงหน้ากระดานย้อนยุค
-                feed.insertAdjacentHTML("afterbegin", newPost);
-                
-                // ล็อกบันทึกลงหน่วยความจำฮาร์ดดิสก์เครื่องถาวรทันที
-                localStorage.setItem("nuk_private_db_v3", feed.innerHTML);
-                
-                txtInput.value = "";
-                imgInput.value = "";
-            };
+            let imgHtml = "";
 
-            if (imgInput.files && imgInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const imgHtml = "<br><img src='" + e.target.result + "' style='max-width:100%; max-height:220px; margin-top:10px; border-radius:4px; border:1px solid #333;'>";
-                    appendAndSave(imgHtml);
-                };
-                reader.readAsDataURL(imgInput.files[0]);
-            } else {
-                appendAndSave("");
+            if (imgUrlInput.value.trim() !== "") {
+                imgHtml = "<br><img src='" + imgUrlInput.value.trim() + "' style='max-width:100%; max-height:250px; margin-top:10px; border-radius:4px; border:1px solid #333;'>";
             }
-        }
-
-        function clearLocalHistory() {
-            if(confirm("สหายต้องการล้างประวัติข้อความและรูปภาพทั้งหมดในเครื่องนี้ใช่ไหมคะ?")) {
-                localStorage.removeItem("nuk_private_db_v3");
-                loadLocalData();
-            }
-        }
-        
-        loadLocalData();
-    </script>
-</body>
-</html>
