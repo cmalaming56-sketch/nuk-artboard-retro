@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuk Script Live Network v3.0</title>
+    <title>Nuk Script Local Network v3.0</title>
     <style>
         body { margin: 0; padding: 0; background-color: #1a1a1a; color: #ffffff; font-family: sans-serif; }
         .header { text-align: center; padding: 20px; background: #111; border-bottom: 2px solid #00ffcc; }
@@ -22,8 +22,8 @@
 <body>
 
     <div class="header">
-        <h1>🚀 Nuk-Artboard-Retro [Nuk Script Architecture V3.0 - Live Cloud]</h1>
-        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">เวอร์ชันเชื่อมโลก: ข้อมูลวาดภาพและฟีดข้อความเชื่อมถึงกันเรียลไทม์ข้ามฮาร์ดแวร์ 24 ชม.</p>
+        <h1>🚀 Nuk-Artboard-Retro [Nuk Script Architecture V3.0 - Private Local]</h1>
+        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">ระบบกระจายข้อมูลออฟไลน์จำลอง: บันทึกข้อมูลปลอดภัย ล็อกติดฮาร์ดดิสก์ 100% ไร้แถบแดงแจ้งเตือน</p>
     </div>
 
     <div class="main-container">
@@ -43,17 +43,17 @@
     </div>
 
     <div class="board-container">
-        <h3>💬 กระดานโพสต์ฟีดแชร์ข้อมูลออนไลน์ (Global Live Sync)</h3>
-        <textarea id="tweetText" placeholder="สหายอยากแชร์ข้อความอะไรลงฟีดโลก..."></textarea>
+        <h3>💬 กระดานโพสต์ฟีดข้อมูลส่วนตัว (Private Machine Storage)</h3>
+        <textarea id="tweetText" placeholder="สหายอยากแชร์ข้อความอะไรลงบอร์ดความจำเครื่อง..."></textarea>
         <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
             <div>🖼️ แนบไฟล์รูปภาพ: <input type="file" id="tweetImage" accept="image/*" style="color:#aaa;"></div>
-            <button onclick="sendTweetToServer()" style="background:#00ffcc; color:#000; border:none; padding:10px 25px;">🚀 โพสต์ลงฟีดโลก</button>
+            <button onclick="sendLocalTweet()" style="background:#00ffcc; color:#000; border:none; padding:10px 25px;">🚀 โพสต์ลงบอร์ดเครื่อง</button>
         </div>
         <div style="margin-top:15px; text-align:right;">
-            <button onclick="loadCloudTweets()" style="color:#00ffcc; border-color:#00ffcc; font-size:12px; background:none; cursor:pointer;">🔄 รีเฟรชดึงฟีดโลกสด</button>
+            <button onclick="clearLocalHistory()" style="color:#ff3333; border-color:#ff3333; font-size:12px; background:none; cursor:pointer;">🧹 ล้างประวัติฟีดทั้งหมด</button>
         </div>
         <div class="feed" id="twitterFeed">
-            <div style="padding:10px; color:#888; text-align:center;">กำลังเชื่อมต่อถังข้อมูลกลางไร้พรมแดน...</div>
+            <!-- พื้นที่ดึงข้อมูลความจำถาวรภายในเครื่อง -->
         </div>
     </div>
 
@@ -100,62 +100,63 @@
         
         document.getElementById("saveImgBtn").addEventListener("click", () => {
             const link = document.createElement("a");
-            link.download = "nuk-masterpiece.png";
+            link.download = "nuk-artwork.png";
             link.href = cvs.toDataURL("image/png");
             link.click();
         });
 
-        // 🌐 ท่อส่งสัญญาณ Google Firebase ความเร็วสูง (ไม่โดน Rate Limit ไม่บล็อกไอพีซิมมือถือ)
+        // 🔒 ระบบฐานข้อมูลนิรภัยฝังในเครื่อง (Local Machine Engine - ไร้แถบแดง ไร้คลาวด์สะดุด 100%)
         const feed = document.getElementById("twitterFeed");
-        const FIREBASE_URL = "https://firebasedatabase.app";
 
-        async function loadCloudTweets() {
-            try {
-                const res = await fetch(FIREBASE_URL);
-                const data = await res.json();
-                if (data) {
-                    let compiledHtml = "";
-                    Object.keys(data).reverse().forEach(key => {
-                        compiledHtml += data[key].html;
-                    });
-                    feed.innerHTML = compiledHtml;
-                } else {
-                    feed.innerHTML = "<div style='padding:10px; color:#888; text-align:center;'>คลาวด์ว่างเปล่า พร้อมรับโพสต์แรกของสหายแล้วค่ะ!</div>";
-                }
-            } catch (err) {
-                feed.innerHTML = "<div style='color:#00ffcc; padding:10px; text-align:center;'>🔄 ระบบคลาวด์กำลังสแตนด์บายดักสัญญาณสดสหาย...</div>";
+        function loadLocalData() {
+            const storedData = localStorage.getItem("nuk_private_db_v3");
+            if (storedData && storedData.trim() !== "") {
+                feed.innerHTML = storedData;
+            } else {
+                feed.innerHTML = "<div style='padding:15px; border-bottom:1px solid #222; font-size:14px; color:#888; text-align:center;'>🤖 ยินดีต้อนรับสู่เซฟโซนออฟไลน์ถาวรของสหายค่ะ! บัญชีข้อมูลและฟีดภาพวาดถูกล็อกติด SSD ในคอมเครื่องนี้เรียบร้อย ปลอดภัยจากกำแพงไฟร์วอลล์และคลาวด์สะดุด 100% แล้วค่ะ!</div>";
             }
         }
 
-        async function sendTweetToServer() {
+        function sendLocalTweet() {
             const txtInput = document.getElementById("tweetText");
             const imgInput = document.getElementById("tweetImage");
             if (!txtInput.value.trim() && imgInput.files.length === 0) return;
+
             const timeString = new Date().toLocaleString("th-TH");
-            let imgHtml = "";
             
-            const uploadPayload = async (finalImgHtml) => {
-                const postContent = "<div style='padding:15px; border-bottom:1px solid #222; font-size:14px; line-height:1.5; background:#1e1e1e; margin-bottom:8px; border-radius:4px;'><small style='color:#00ffcc;'>[" + timeString + " - นิรนามสหาย]</small><br>" + txtInput.value + finalImgHtml + "</div>";
-                await fetch(FIREBASE_URL, {
-                    method: "POST",
-                    body: JSON.stringify({ html: postContent, timestamp: Date.now() })
-                });
-                txtInput.value = ""; imgInput.value = "";
-                loadCloudTweets();
+            const appendAndSave = (imgHtmlCode) => {
+                const newPost = "<div style='padding:15px; border-bottom:1px solid #222; font-size:14px; line-height:1.5; background:#1e1e1e; margin-bottom:8px; border-radius:4px;'><small style='color:#00ffcc;'>[" + timeString + " - สหายเจ้าของเครื่อง]</small><br>" + txtInput.value + imgHtmlCode + "</div>";
+                
+                // แทรกโพสต์ใหม่ลงหน้ากระดานย้อนยุค
+                feed.insertAdjacentHTML("afterbegin", newPost);
+                
+                // ล็อกบันทึกลงหน่วยความจำฮาร์ดดิสก์เครื่องถาวรทันที
+                localStorage.setItem("nuk_private_db_v3", feed.innerHTML);
+                
+                txtInput.value = "";
+                imgInput.value = "";
             };
 
             if (imgInput.files && imgInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    imgHtml = "<br><img src='" + e.target.result + "' style='max-width:100%; max-height:220px; margin-top:10px; border-radius:4px; border:1px solid #333;'>";
-                    uploadPayload(imgHtml);
+                    const imgHtml = "<br><img src='" + e.target.result + "' style='max-width:100%; max-height:220px; margin-top:10px; border-radius:4px; border:1px solid #333;'>";
+                    appendAndSave(imgHtml);
                 };
                 reader.readAsDataURL(imgInput.files[0]);
-            } else { uploadPayload(""); }
+            } else {
+                appendAndSave("");
+            }
+        }
+
+        function clearLocalHistory() {
+            if(confirm("สหายต้องการล้างประวัติข้อความและรูปภาพทั้งหมดในเครื่องนี้ใช่ไหมคะ?")) {
+                localStorage.removeItem("nuk_private_db_v3");
+                loadLocalData();
+            }
         }
         
-        loadCloudTweets();
-        setInterval(loadCloudTweets, 10000); // อัปเดตข้อมูลสดข้ามอุปกรณ์อัตโนมัติทุก ๆ 10 วินาที
+        loadLocalData();
     </script>
 </body>
 </html>
