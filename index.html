@@ -9,8 +9,9 @@
         .header { text-align: center; padding: 20px; background: #111; border-bottom: 2px solid #00ffcc; }
         h1 { margin: 0; color: #00ffcc; font-size: 24px; }
         .main-container { display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .canvas-area { background: #fff; border: 3px dashed #00ffcc; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); touch-action: none; }
-        canvas { display: block; cursor: crosshair; touch-action: none; }
+        /* สั่งลบเมาส์เดิมของระบบทิ้งไปเพื่อเตรียมแทนที่ด้วยวงแหวนเป้าเล็งอัจฉริยะ */
+        .canvas-area { background: #fff; border: 3px dashed #00ffcc; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); touch-action: none; position: relative; cursor: none; }
+        canvas { display: block; touch-action: none; cursor: none; }
         .tools { margin-top: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
         button { padding: 10px 20px; background: #333; color: #fff; border: 1px solid #555; border-radius: 4px; font-weight: bold; cursor: pointer; user-select: none; }
         button:hover { background: #00ffcc; color: #000; border-color: #00ffcc; }
@@ -21,18 +22,32 @@
         .feed { margin-top: 20px; max-height: 250px; overflow-y: auto; background: #151515; padding: 10px; border-radius: 4px; border: 1px solid #2a2a2a; }
         .post-item { padding: 10px; border-bottom: 1px solid #222; font-size: 14px; line-height: 1.5; }
         .post-time { color: #888; font-size: 11px; margin-bottom: 4px; }
+        
+        /* 🎯 วงเล็งอัจฉริยะแบบเลเยอร์ลอย (Cursor Ring) ป้องกันเป้ากลมกลืนพื้นหลัง */
+        #nukCursorFollower {
+            position: absolute;
+            pointer-events: none;
+            border: 2px solid #1a1a1a;
+            box-shadow: 0 0 0 1.5px #00ffcc;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 999;
+        }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>🚀 Nuk-Artboard-Retro [Nuk Script V3.0 - Long Line Fixed]</h1>
-        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">ระบบบอร์ดสากล: ดินสอ ยางลบ ถังสี แถบปรับเส้นคมชัด ลากเส้นยาวต่อเนื่องไหลลื่นไม่มีสะดุด</p>
+        <h1>🚀 Nuk-Artboard-Retro [Nuk Script V3.0 - UI Master]</h1>
+        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">ระบบบอร์ดสากล: เปิดระบบวงเล็งพู่กันไฮไลต์สะท้อนแสง และวงกลมยางลบกะระยะคมชัด 100%</p>
     </div>
 
     <div class="main-container">
-        <div class="canvas-area">
+        <div class="canvas-area" id="canvasFrame">
             <canvas id="nukCanvas" width="800" height="450"></canvas>
+            <!-- 🎯 วงแหวนเป้าเล็งสีอินเวอร์ส ดำ-เขียวสะท้อนแสง -->
+            <div id="nukCursorFollower"></div>
         </div>
         
         <div class="tools">
@@ -56,8 +71,8 @@
 
         <div class="feed" id="boardFeed">
             <div class="post-item">
-                <div class="post-time">ซ่อมทางหมึกต่อเนื่องสำเร็จ: ช่วงบ่ายแก่วันหยุด</div>
-                🤖 ดักแก้บั๊กพิกัดเรียบร้อยแล้วค่ะสหาย! ลากเมาส์ลากนิ้วเส้นยาวอ้อมจักรวาลได้ไหลลื่นสุด ๆ แล้วค่ะ!
+                <div class="post-time">อัปเดต UX สมบูรณ์แบบ: บ่ายแก่สเปกพรีเมียม</div>
+                🤖 ปลุกระบบวงแหวนเป้าเล็งสีเรืองแสง ดักจับระยะลบของยางลบได้เนียนตาคมกริบแล้วค่ะสหาย!
             </div>
         </div>
     </div>
@@ -65,6 +80,8 @@
     <script>
         const canvas = document.getElementById('nukCanvas');
         const ctx = canvas.getContext('2d');
+        const canvasFrame = document.getElementById('canvasFrame');
+        const follower = document.getElementById('nukCursorFollower');
         let drawing = false;
         let currentTool = 'pencil'; 
 
@@ -73,7 +90,16 @@
 
         const penSize = document.getElementById('penSize');
         const sizeDisplay = document.getElementById('sizeDisplay');
-        penSize.addEventListener('input', (e) => { sizeDisplay.textContent = e.target.value + 'px'; });
+        
+        // ฟังก์ชันปรับขนาดวงกลมเป้าเล็งตามขนาดเส้น Slider เสมอ
+        function updateCursorSize() {
+            const size = penSize.value;
+            sizeDisplay.textContent = size + 'px';
+            follower.style.width = size + 'px';
+            follower.style.height = size + 'px';
+        }
+        penSize.addEventListener('input', updateCursorSize);
+        updateCursorSize(); // รันค่าเริ่มต้นพิกเซล
 
         function setTool(tool) {
             currentTool = tool;
@@ -84,6 +110,33 @@
             document.getElementById('toolBucket').style.background = (tool === 'bucket') ? '#00ffcc' : '#333';
             document.getElementById('toolBucket').style.color = (tool === 'bucket') ? '#000' : '#fff';
         }
+
+        // 🎯 กลไกสั่งอัปเดตย้ายตำแหน่งวงแหวนเป้าเล็งวิ่งตามนิ้วและเมาส์ข้ามอุปกรณ์
+        function moveFollower(e) {
+            const rect = canvas.getBoundingClientRect();
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+            
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+            
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+            
+            // ตรวจขอบเขตเช็กพิกัดถ้าอยู่ในกระดานผ้าใบให้แสดงวงแหวน
+            if (x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height) {
+                follower.style.display = 'block';
+                follower.style.left = x + 'px';
+                follower.style.top = y + 'px';
+            } else {
+                follower.style.display = 'none';
+            }
+        }
+
+        canvasFrame.addEventListener('pointermove', moveFollower);
+        canvasFrame.addEventListener('pointerleave', () => follower.style.display = 'none');
 
         canvas.addEventListener('pointerdown', (e) => {
             if (currentTool === 'bucket') {
@@ -104,13 +157,10 @@
             const rect = canvas.getBoundingClientRect();
             ctx.lineWidth = penSize.value;
             ctx.lineCap = 'round';
-            
             ctx.strokeStyle = (currentTool === 'eraser') ? '#ffffff' : document.getElementById('penColor').value;
-            
             ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
             ctx.stroke(); 
             ctx.beginPath(); 
-            // 🎯 [แก้ไขจุดตายตรงนี้] เปลี่ยนจาก r.top กลับมาเป็น rect.top เพื่อดึงความจำลากเส้นยาวถาวร
             ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
         });
 
