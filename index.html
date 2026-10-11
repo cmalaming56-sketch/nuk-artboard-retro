@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Nuk Script Live Network v3.0</title>
+    <title>Nuk-Artboard-Retro v3.0</title>
     <style>
         body { margin: 0; padding: 0; background-color: #1a1a1a; color: #ffffff; font-family: sans-serif; }
         .header { text-align: center; padding: 20px; background: #111; border-bottom: 2px solid #00ffcc; }
         h1 { margin: 0; color: #00ffcc; font-size: 24px; }
         .main-container { display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .canvas-area { background: #fff; border: 3px dashed #00ffcc; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); position: relative; cursor: none; }
-        canvas { display: block; cursor: none; touch-action: none; }
+        /* สั่งลบเมาส์เดิมของระบบทิ้งไปเพื่อเตรียมแทนที่ด้วยวงแหวนเป้าเล็งอัจฉริยะ */
+        .canvas-area { background: #fff; border: 3px dashed #00ffcc; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); touch-action: none; position: relative; cursor: none; }
+        canvas { display: block; touch-action: none; cursor: none; }
         .tools { margin-top: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
         button { padding: 10px 20px; background: #333; color: #fff; border: 1px solid #555; border-radius: 4px; font-weight: bold; cursor: pointer; user-select: none; }
         button:hover { background: #00ffcc; color: #000; border-color: #00ffcc; }
@@ -21,19 +22,31 @@
         .feed { margin-top: 20px; max-height: 250px; overflow-y: auto; background: #151515; padding: 10px; border-radius: 4px; border: 1px solid #2a2a2a; }
         .post-item { padding: 10px; border-bottom: 1px solid #222; font-size: 14px; line-height: 1.5; }
         .post-time { color: #888; font-size: 11px; margin-bottom: 4px; }
-        #nukCursorFollower { position: absolute; pointer-events: none; border: 2px solid #1a1a1a; box-shadow: 0 0 0 1.5px #00ffcc; border-radius: 50%; transform: translate(-50%, -50%); display: none; z-index: 999; }
+        
+        /* 🎯 วงเล็งอัจฉริยะแบบเลเยอร์ลอย (Cursor Ring) ป้องกันเป้ากลมกลืนพื้นหลัง */
+        #nukCursorFollower {
+            position: absolute;
+            pointer-events: none;
+            border: 2px solid #1a1a1a;
+            box-shadow: 0 0 0 1.5px #00ffcc;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            z-index: 999;
+        }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>🚀 Nuk-Artboard-Retro [Nuk Script V3.0 - Live Cloud Sync]</h1>
-        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">เวอร์ชันเชื่อมโลกแท้: ข้อมูลวาดภาพและฟีดข้อความเชื่อมถึงกันเรียลไทม์บันทึกข้ามคอมพิวเตอร์และจอมือถือ 24 ชม.</p>
+        <h1>🚀 Nuk-Artboard-Retro [Nuk Script V3.0 - UI Master]</h1>
+        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">ระบบบอร์ดสากล: เปิดระบบวงเล็งพู่กันไฮไลต์สะท้อนแสง และวงกลมยางลบกะระยะคมชัด 100%</p>
     </div>
 
     <div class="main-container">
         <div class="canvas-area" id="canvasFrame">
             <canvas id="nukCanvas" width="800" height="450"></canvas>
+            <!-- 🎯 วงแหวนเป้าเล็งสีอินเวอร์ส ดำ-เขียวสะท้อนแสง -->
             <div id="nukCursorFollower"></div>
         </div>
         
@@ -52,12 +65,15 @@
     </div>
 
     <div class="board-container">
-        <h3>💬 กระดานส่งข้อมูลคอมเมนต์เชื่อมโลกสด (Global Live Sync)</h3>
-        <textarea id="postInput" placeholder="พิมพ์ข้อความส่งเข้าบอร์ดคลาวด์กลางที่นี่..."></textarea>
-        <button id="submitPost" style="margin-top: 10px; background: #00ffcc; color: #000; border: none;">🚀 โพสต์ลงฟีดออนไลน์กลาง</button>
+        <h3>💬 กระดานส่งข้อมูลคอมเมนต์</h3>
+        <textarea id="postInput" placeholder="พิมพ์ข้อความส่งเข้าบอร์ดที่นี่..."></textarea>
+        <button id="submitPost" style="margin-top: 10px; background: #00ffcc; color: #000; border: none;">ส่งข้อมูลเข้าบอร์ด</button>
 
         <div class="feed" id="boardFeed">
-            <div style="padding:10px; color:#888; text-align:center;">กำลังเชื่อมต่อท่อฐานข้อมูลกลางของกูเกิลไร้พรมแดน...</div>
+            <div class="post-item">
+                <div class="post-time">อัปเดต UX สมบูรณ์แบบ: บ่ายแก่สเปกพรีเมียม</div>
+                🤖 ปลุกระบบวงแหวนเป้าเล็งสีเรืองแสง ดักจับระยะลบของยางลบได้เนียนตาคมกริบแล้วค่ะสหาย!
+            </div>
         </div>
     </div>
 
@@ -75,6 +91,7 @@
         const penSize = document.getElementById('penSize');
         const sizeDisplay = document.getElementById('sizeDisplay');
         
+        // ฟังก์ชันปรับขนาดวงกลมเป้าเล็งตามขนาดเส้น Slider เสมอ
         function updateCursorSize() {
             const size = penSize.value;
             sizeDisplay.textContent = size + 'px';
@@ -82,7 +99,7 @@
             follower.style.height = size + 'px';
         }
         penSize.addEventListener('input', updateCursorSize);
-        updateCursorSize();
+        updateCursorSize(); // รันค่าเริ่มต้นพิกเซล
 
         function setTool(tool) {
             currentTool = tool;
@@ -94,65 +111,77 @@
             document.getElementById('toolBucket').style.color = (tool === 'bucket') ? '#000' : '#fff';
         }
 
+        // 🎯 กลไกสั่งอัปเดตย้ายตำแหน่งวงแหวนเป้าเล็งวิ่งตามนิ้วและเมาส์ข้ามอุปกรณ์
         function moveFollower(e) {
             const rect = canvas.getBoundingClientRect();
-            let clientX = e.clientX; let clientY = e.clientY;
-            if (e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
-            const x = clientX - rect.left; const y = clientY - rect.top;
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+            
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+            
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+            
+            // ตรวจขอบเขตเช็กพิกัดถ้าอยู่ในกระดานผ้าใบให้แสดงวงแหวน
             if (x >= 0 && x <= canvas.width && y >= 0 && y <= canvas.height) {
-                follower.style.display = 'block'; follower.style.left = x + 'px'; follower.style.top = y + 'px';
-            } else { follower.style.display = 'none'; }
+                follower.style.display = 'block';
+                follower.style.left = x + 'px';
+                follower.style.top = y + 'px';
+            } else {
+                follower.style.display = 'none';
+            }
         }
+
         canvasFrame.addEventListener('pointermove', moveFollower);
         canvasFrame.addEventListener('pointerleave', () => follower.style.display = 'none');
 
-        // 🛠️ ท่อ Pointer Events ระดับสากล (รองรับเมาส์คอมและนิ้วมือถือลากเส้นยาวไหลลื่น 100%)
         canvas.addEventListener('pointerdown', (e) => {
             if (currentTool === 'bucket') {
                 ctx.fillStyle = document.getElementById('penColor').value;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
             } else {
-                drawing = true; ctx.beginPath(); const rect = canvas.getBoundingClientRect();
+                drawing = true;
+                ctx.beginPath();
+                const rect = canvas.getBoundingClientRect();
                 ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
             }
         });
+
         canvas.addEventListener('pointerup', () => { drawing = false; ctx.beginPath(); });
+
         canvas.addEventListener('pointermove', (e) => {
             if (!drawing || currentTool === 'bucket') return;
             const rect = canvas.getBoundingClientRect();
-            ctx.lineWidth = penSize.value; ctx.lineCap = 'round';
+            ctx.lineWidth = penSize.value;
+            ctx.lineCap = 'round';
             ctx.strokeStyle = (currentTool === 'eraser') ? '#ffffff' : document.getElementById('penColor').value;
             ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-            ctx.stroke(); ctx.beginPath(); ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke(); 
+            ctx.beginPath(); 
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
         });
 
         function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); initCanvasBackground(); }
         document.getElementById('clear-btn').addEventListener('click', clearCanvas);
+
         document.getElementById('save-img').addEventListener('click', () => {
             const link = document.createElement('a'); link.download = 'nuk-drawing.png'; link.href = canvas.toDataURL('image/png'); link.click();
         });
 
-        // --- 🌐 ท่อสัญญาณฐานข้อมูลกลาง Google Firebase (เชื่อมโยงแชทคอมและมือถือเข้าหากันถาวร) ---
+        // --- ระบบคอมเมนต์ ---
+        const postInput = document.getElementById('postInput');
+        const submitPost = document.getElementById('submitPost');
         const boardFeed = document.getElementById('boardFeed');
-        const FIREBASE_URL = "https://firebasedatabase.app";
-
-        async function loadCloudTweets() {
-            try {
-                const res = await fetch(FIREBASE_URL); const data = await res.json();
-                if (data) {
-                    let compiledHtml = "";
-                    Object.keys(data).reverse().forEach(key => { compiledHtml += data[key].html; });
-                    boardFeed.innerHTML = compiledHtml;
-                } else { boardFeed.innerHTML = "<div style='padding:10px; color:#888; text-align:center;'>บอร์ดคลาวด์ว่างเปล่า พร้อมรับโพสต์แชทชิ้นแรกแล้วค่ะสหาย!</div>"; }
-            } catch (err) { boardFeed.innerHTML = "<div style='color:#00ffcc; padding:10px; text-align:center;'>📬 กำลังคอยสัญญาณดึงฟีดข้อความออนไลน์สด...</div>"; }
-        }
-
-        document.getElementById('submitPost').addEventListener('click', async () => {
-            const postInput = document.getElementById('postInput'); const text = postInput.value.trim();
-            if (!text) return;
+        submitPost.addEventListener('click', () => {
+            const text = postInput.value.trim(); if (!text) return;
             const timeString = new Date().toLocaleString('th-TH');
-            const postContent = "<div class='post-item'><div class='post-time'>" + timeString + " - สหายกระจายศูนย์</div> 📩 ส่งข้อความ: " + text + "</div>";
-            
-            // ยิงส่งดาต้าวิ่งข้ามอินเทอร์เน็ตไปล็อกบันทึกบนก้อนเมฆ Google กลางทันที 
-            await fetch(FIREBASE_URL, {
-                method: "POST",
+            const newPost = document.createElement('div'); newPost.className = 'post-item';
+            newPost.innerHTML = `<div class="post-time">${timeString}</div> 📩 สหายส่งมา: ${text}`;
+            boardFeed.insertBefore(newPost, boardFeed.firstChild); postInput.value = '';
+        });
+    </script>
+</body>
+</html>
