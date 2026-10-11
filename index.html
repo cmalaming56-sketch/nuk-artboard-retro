@@ -9,8 +9,8 @@
         .header { text-align: center; padding: 20px; background: #111; border-bottom: 2px solid #00ffcc; }
         h1 { margin: 0; color: #00ffcc; font-size: 24px; }
         .main-container { display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .canvas-area { background: #fff; border: 3px dashed #00ffcc; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); touch-action: none; }
-        canvas { display: block; cursor: crosshair; touch-action: none; }
+        .canvas-area { background: #fff; border: 3px dashed #00ffcc; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        canvas { display: block; cursor: crosshair; }
         .tools { margin-top: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
         button { padding: 8px 16px; background: #333; color: #fff; border: 1px solid #555; border-radius: 4px; font-weight: bold; cursor: pointer; }
         button:hover { background: #00ffcc; color: #000; border-color: #00ffcc; }
@@ -24,16 +24,18 @@
 
     <div class="header">
         <h1>🚀 Nuk-Artboard-Retro [Nuk Script Architecture V3.0]</h1>
-        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">เวอร์ชันสัมผัสมือถือลื่นไหล: ล็อกหน้าจอไม่ให้เลื่อนเมื่อวาดภาพ เชื่อมฟีดโลกออนไลน์สด 24 ชม.</p>
+        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">เวอร์ชันเชื่อมโลกเสรี: มีระบบปุ่มกดล็อกหน้าจอเพื่อใช้นิ้ววาดรูปบนจอมือถือได้อย่างอิสระ 24 ชม.</p>
     </div>
 
     <div class="main-container">
-        <!-- 🎨 เพิ่มคำสั่ง touch-action: none ในเลเยอร์เพื่อสั่งล็อกจอมือถือไม่ให้ไถเลื่อนขึ้นลงตอนใช้นิ้วลากเส้น -->
-        <div class="canvas-area" style="touch-action: none;">
-            <canvas id="canvas" width="800" height="400" style="touch-action: none;"></canvas>
+        <div class="canvas-area">
+            <canvas id="canvas" width="800" height="400"></canvas>
         </div>
         <div class="tools">
-            <button id="toolPencil" onclick="setTool('pencil')" style="background:#00ffcc; color:#000; border:none;">✏️ ดินสอ</button>
+            <!-- 📱 ปุ่มไม้ตายล็อกหน้าจอตามที่สหายสั่ง กดคลิกสลับสิทธิ์ได้ทันที -->
+            <button id="lockScreenBtn" onclick="toggleScreenLock()" style="background:#ff3333; color:#fff; border:none;">🔓 จอมือถือสไลด์ปกติ</button>
+            
+            <button id="toolPencil" onclick="setTool('pencil')" style="background:#00ffcc; color:#000; border:none; margin-left:15px;">✏️ ดินสอ</button>
             <button id="toolEraser" onclick="setTool('eraser')">🧼 ยางลบ</button>
             <button id="toolBucket" onclick="setTool('bucket')">🪣 ถังสี</button>
             🎨 สี: <input type="color" id="penColor" value="#1a1a1a" style="cursor:pointer;">
@@ -67,7 +69,8 @@
         const cvs = document.getElementById("canvas");
         const ctx = cvs.getContext("2d");
         let draw = false; let currentTool = "pencil";
-        
+        let isScreenLocked = false; // ถังเก็บสถานะล็อกจอมือถือ
+
         function initCanvasBackground() { ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, cvs.width, cvs.height); }
         initCanvasBackground();
         
@@ -75,6 +78,21 @@
         const sizeDisplay = document.getElementById("sizeDisplay");
         penSize.addEventListener("input", (e) => { sizeDisplay.textContent = e.target.value + "px"; });
         
+        // 🔒 ฟังก์ชันกลไกปุ่มกดล็อกหน้าจอมือถือ สลับสิทธิ์อัจฉริยะตามใจสหาย
+        function toggleScreenLock() {
+            isScreenLocked = !isScreenLocked;
+            const btn = document.getElementById("lockScreenBtn");
+            if (isScreenLocked) {
+                btn.textContent = "🔒 ล็อกจอมือถือไม่ให้เลื่อนแล้ว";
+                btn.style.background = "#00ffcc";
+                btn.style.color = "#000";
+            } else {
+                btn.textContent = "🔓 จอมือถือสไลด์ปกติ";
+                btn.style.background = "#ff3333";
+                btn.style.color = "#fff";
+            }
+        }
+
         function setTool(tool) {
             currentTool = tool;
             document.getElementById("toolPencil").style.background = (tool === "pencil") ? "#00ffcc" : "#333";
@@ -85,44 +103,46 @@
             document.getElementById("toolBucket").style.color = (tool === "bucket") ? "#000" : "#fff";
         }
         
-        // --- 🕹️ โค้ลกลไกคุมสัญญาณเมาส์คอมพิวเตอร์ตามปกติ ---
-        cvs.addEventListener("mousedown", () => {
-            if (currentTool === "bucket") {
-                ctx.fillStyle = document.getElementById("penColor").value;
-                ctx.fillRect(0, 0, cvs.width, cvs.height);
-            } else { draw = true; }
-        });
-        cvs.addEventListener("mouseup", () => { ctx.beginPath(); draw = false; });
-        cvs.addEventListener("mousemove", (e) => {
-            if(!draw || currentTool === "bucket") return;
+        // --- 🕹️ โครงสร้างดักสัญญาณวาดภาพข้ามอุปกรณ์ (มัดรวมระบบสัมผัสและเมาส์คอมพิวเตอร์เข้าหากัน) ---
+        function getPos(e) {
             const r = cvs.getBoundingClientRect();
-            ctx.lineWidth = penSize.value;
-            ctx.lineCap = "round";
-            ctx.strokeStyle = (currentTool === "eraser") ? "#ffffff" : document.getElementById("penColor").value;
-            ctx.lineTo(e.clientX - r.left, e.clientY - r.top);
-            ctx.stroke(); ctx.beginPath(); ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
-        });
+            if (e.touches && e.touches.length > 0) {
+                return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
+            }
+            return { x: e.clientX - r.left, y: e.clientY - r.top };
+        }
 
-        // --- 📱 ปลดล็อกอาวุธ: ท่อดักรับสัญญาณนิ้วมือถือ (Touch Events) เพื่อสั่งวาดบนมือถือได้จริง ---
-        cvs.addEventListener("touchstart", (e) => {
+        function startDraw(e) {
             if (currentTool === "bucket") {
                 ctx.fillStyle = document.getElementById("penColor").value;
                 ctx.fillRect(0, 0, cvs.width, cvs.height);
             } else { draw = true; }
-        });
-        cvs.addEventListener("touchend", () => { ctx.beginPath(); draw = false; });
-        cvs.addEventListener("touchmove", (e) => {
-            if(!draw || currentTool === "bucket") return;
-            // สั่งยกเลิกคำสั่งไถเลื่อนหน้าจอของระบบปฏิบัติการมือถือขัดขวางเส้นหมึก
-            e.preventDefault(); 
-            const r = cvs.getBoundingClientRect();
-            const touch = e.touches[0]; // ดักพิกัดนิ้วแรกที่จิ้มจอ
+        }
+
+        function moveDraw(e) {
+            // 📱 เงื่อนไขเด็ดขาด: ถ้าผู้ใช้กดล็อกหน้าจอไว้ ให้ทำการบล็อกคำสั่งสไลด์จอมือถือทิ้งทันทีเพื่อวาดเส้นได้คมสวย
+            if (isScreenLocked && e.cancelable) { e.preventDefault(); }
+            if (!draw || currentTool === "bucket") return;
+
+            const pos = getPos(e);
             ctx.lineWidth = penSize.value;
             ctx.lineCap = "round";
             ctx.strokeStyle = (currentTool === "eraser") ? "#ffffff" : document.getElementById("penColor").value;
-            ctx.lineTo(touch.clientX - r.left, touch.clientY - r.top);
-            ctx.stroke(); ctx.beginPath(); ctx.moveTo(touch.clientX - r.left, touch.clientY - r.top);
-        }, { passive: false });
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke(); ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
+        }
+
+        function stopDraw() { ctx.beginPath(); draw = false; }
+
+        // ผูกสัญญาณเมาส์คอม
+        cvs.addEventListener("mousedown", startDraw);
+        cvs.addEventListener("mouseup", stopDraw);
+        cvs.addEventListener("mousemove", moveDraw);
+
+        // ผูกสัญญาณนิ้วสัมผัสมือถือ
+        cvs.addEventListener("touchstart", startDraw);
+        cvs.addEventListener("touchend", stopDraw);
+        cvs.addEventListener("touchmove", moveDraw, { passive: false });
         
         function clearCanvas() { ctx.clearRect(0, 0, cvs.width, cvs.height); initCanvasBackground(); }
         
@@ -155,9 +175,3 @@
             const txtInput = document.getElementById("tweetText");
             const imgUrlInput = document.getElementById("tweetImageUrl");
             if (!txtInput.value.trim() && !imgUrlInput.value.trim()) return;
-            const timeString = new Date().toLocaleString("th-TH");
-            let imgHtml = "";
-
-            if (imgUrlInput.value.trim() !== "") {
-                imgHtml = "<br><img src='" + imgUrlInput.value.trim() + "' style='max-width:100%; max-height:250px; margin-top:10px; border-radius:4px; border:1px solid #333;'>";
-            }
