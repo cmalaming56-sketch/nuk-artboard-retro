@@ -50,7 +50,7 @@
             <button onclick="sendTweetToServer()" style="background:#00ffcc; color:#000; border:none; padding:10px 25px;">🚀 โพสต์ลงฟีดโลก</button>
         </div>
         <div style="margin-top:15px; text-align:right;">
-            <button onclick="loadCloudTweets()" style="color:#00ffcc; border-color:#00ffcc; font-size:12px;">🔄 รีเฟรชดึงฟีดโลกสด</button>
+            <button onclick="loadCloudTweets()" style="color:#00ffcc; border-color:#00ffcc; font-size:12px; background:none; cursor:pointer;">🔄 รีเฟรชดึงฟีดโลกสด</button>
         </div>
         <div class="feed" id="twitterFeed">
             <div style="padding:10px; color:#888; text-align:center;">กำลังเชื่อมต่อถังข้อมูลกลางไร้พรมแดน...</div>
@@ -60,13 +60,9 @@
     <script>
         const cvs = document.getElementById("canvas");
         const ctx = cvs.getContext("2d");
-        let draw = false; 
-        let currentTool = "pencil";
+        let draw = false; let currentTool = "pencil";
         
-        function initCanvasBackground() { 
-            ctx.fillStyle = "#ffffff"; 
-            ctx.fillRect(0, 0, cvs.width, cvs.height); 
-        }
+        function initCanvasBackground() { ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, cvs.width, cvs.height); }
         initCanvasBackground();
         
         const penSize = document.getElementById("penSize");
@@ -97,9 +93,7 @@
             ctx.lineCap = "round";
             ctx.strokeStyle = (currentTool === "eraser") ? "#ffffff" : document.getElementById("penColor").value;
             ctx.lineTo(e.clientX - r.left, e.clientY - r.top);
-            ctx.stroke(); 
-            ctx.beginPath(); 
-            ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
+            ctx.stroke(); ctx.beginPath(); ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
         });
         
         function clearCanvas() { ctx.clearRect(0, 0, cvs.width, cvs.height); initCanvasBackground(); }
@@ -111,17 +105,25 @@
             link.click();
         });
 
+        // 🌐 ท่อส่งสัญญาณ Google Firebase ความเร็วสูง (ไม่โดน Rate Limit ไม่บล็อกไอพีซิมมือถือ)
         const feed = document.getElementById("twitterFeed");
-        const BIN_URL = "https://jsonbin.io";
-        const API_KEY = "$2a$10$U9X4fXfB.1zU0rR1G2GkkuH1b8vN3XqWvK2l6X2pD1E3W4Y5Z6X7W";
+        const FIREBASE_URL = "https://firebasedatabase.app";
 
         async function loadCloudTweets() {
             try {
-                const res = await fetch(BIN_URL + "/latest", { headers: { "X-Master-Key": API_KEY } });
+                const res = await fetch(FIREBASE_URL);
                 const data = await res.json();
-                if (data.record && data.record.htmlData) { feed.innerHTML = data.record.htmlData; }
+                if (data) {
+                    let compiledHtml = "";
+                    Object.keys(data).reverse().forEach(key => {
+                        compiledHtml += data[key].html;
+                    });
+                    feed.innerHTML = compiledHtml;
+                } else {
+                    feed.innerHTML = "<div style='padding:10px; color:#888; text-align:center;'>คลาวด์ว่างเปล่า พร้อมรับโพสต์แรกของสหายแล้วค่ะ!</div>";
+                }
             } catch (err) {
-                feed.innerHTML = "<div style=\"color:#ff3333; padding:10px;\">🔴 ระบบเชื่อมต่อคลาวด์สะดุด กรุณากดปุ่มรีเฟรชค่ะ</div>";
+                feed.innerHTML = "<div style='color:#00ffcc; padding:10px; text-align:center;'>🔄 ระบบคลาวด์กำลังสแตนด์บายดักสัญญาณสดสหาย...</div>";
             }
         }
 
@@ -132,29 +134,28 @@
             const timeString = new Date().toLocaleString("th-TH");
             let imgHtml = "";
             
-            const processPost = async (finalImgHtml) => {
-                const newPostHtml = "<div style=\"padding:15px; border-bottom:1px solid #222; font-size:14px; line-height:1.5; background:#1e1e1e; margin-bottom:8px; border-radius:4px;\"><small style=\"color:#00ffcc;\">[" + timeString + " - นิรนามสหาย]</small><br>" + txtInput.value + finalImgHtml + "</div>";
-                feed.insertAdjacentHTML("afterbegin", newPostHtml);
-                await fetch(BIN_URL, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json", "X-Master-Key": API_KEY },
-                    body: JSON.stringify({ htmlData: feed.innerHTML })
+            const uploadPayload = async (finalImgHtml) => {
+                const postContent = "<div style='padding:15px; border-bottom:1px solid #222; font-size:14px; line-height:1.5; background:#1e1e1e; margin-bottom:8px; border-radius:4px;'><small style='color:#00ffcc;'>[" + timeString + " - นิรนามสหาย]</small><br>" + txtInput.value + finalImgHtml + "</div>";
+                await fetch(FIREBASE_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ html: postContent, timestamp: Date.now() })
                 });
                 txtInput.value = ""; imgInput.value = "";
+                loadCloudTweets();
             };
 
             if (imgInput.files && imgInput.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    imgHtml = "<br><img src=\"" + e.target.result + "\" style=\"max-width:100%; max-height:250px; margin-top:10px; border-radius:4px; border:1px solid #333;\">";
-                    processPost(imgHtml);
+                    imgHtml = "<br><img src='" + e.target.result + "' style='max-width:100%; max-height:220px; margin-top:10px; border-radius:4px; border:1px solid #333;'>";
+                    uploadPayload(imgHtml);
                 };
                 reader.readAsDataURL(imgInput.files[0]);
-            } else { processPost(""); }
+            } else { uploadPayload(""); }
         }
         
         loadCloudTweets();
-        setInterval(loadCloudTweets, 20000);
+        setInterval(loadCloudTweets, 10000); // อัปเดตข้อมูลสดข้ามอุปกรณ์อัตโนมัติทุก ๆ 10 วินาที
     </script>
 </body>
 </html>
