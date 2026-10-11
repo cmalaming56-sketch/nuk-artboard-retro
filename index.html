@@ -30,10 +30,12 @@
             border: 3px dashed #00ffcc;
             border-radius: 4px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            touch-action: none; /* 🔒 ล็อกหน้าจอไม่ให้ไถเลื่อนขึ้นลงเวลารูดนิ้ววาดภาพบนจอมือถือ */
         }
         canvas {
             display: block;
             cursor: crosshair;
+            touch-action: none; /* 🔒 ล็อกแกนสัมผัสของเบราว์เซอร์มือถือ */
         }
         .tools {
             margin-top: 15px;
@@ -105,8 +107,8 @@
 <body>
 
     <div class="header">
-        <h1>🚀 Nuk-Artboard-Retro [Nuk Script V1.0]</h1>
-        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">ระบบบอร์ดคอมมูนิตี้: รองรับเมาส์ลากวาดเส้นคมบนคอมพิวเตอร์ และระบบเซฟตบไฟล์ภาพลงเครื่องถาวร</p>
+        <h1>🚀 Nuk-Artboard-Retro [Nuk Script V1.0 - Cross Platform]</h1>
+        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">ระบบบอร์ดสากล: รองรับเมาส์ลากวาดบนคอมพิวเตอร์ และใช้นิ้วปาดเส้นวาดติดบนหน้าจอมือถือได้พร้อมกัน</p>
     </div>
 
     <div class="main-container">
@@ -116,7 +118,6 @@
         </div>
         
         <div class="tools">
-            <!-- 💾 ปุ่มสั่งเซฟล็อกรูปภาพลงเครื่องฮาร์ดดิสก์ SSD ของแท้ดั้งเดิม -->
             <button id="save-img">💾 เซฟรูปภาพลง SSD</button>
             <button id="clear-btn" class="btn-clear">🧹 เคลียร์หน้าจอ</button>
         </div>
@@ -130,28 +131,35 @@
 
         <div class="feed" id="boardFeed">
             <div class="post-item">
-                <div class="post-time">ระบบฐานข้อมูลเสถียร: บ่ายวันที่ 11 ตุลาคม 2569</div>
-                🤖 ระบบ Nuk Script V1.0 ฟื้นคืนชีพกลับมาทำงานลื่นไหลแล้วค่ะ! ลองวาดรูปและพิมพ์แชทส่งข้อความดูได้เลยค่ะสหาย!
+                <div class="post-time">ระบบสากล: บ่ายวันที่ 11 ตุลาคม 2569</div>
+                🤖 ปลดล็อกระบบสัมผัสเรียบร้อยแล้วค่ะ! สหายลากเมาส์บนคอม หรือใช้ปลายนิ้วปาดวาดรูปบนจอมือถือได้พร้อมกันแล้วค่ะ!
             </div>
         </div>
     </div>
 
     <script>
-        // --- แกนสมองกลกลไกการวาดรูปดั้งเดิมบนคอมพิวเตอร์ ---
         const canvas = document.getElementById('nukCanvas');
         const ctx = canvas.getContext('2d');
         let drawing = false;
 
-        // สั่งระบายสีขาวรองพื้นผ้าใบแต่เริ่มแรก ป้องกันปัญหาเซฟแล้วภาพกลายเป็นสีดำ
+        // สั่งระบายสีขาวรองพื้นผ้าใบ ป้องกันปัญหาเซฟแล้วภาพกลายเป็นสีดำ
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // ดักจับสัญญาณเมาส์คลิกลากบนหน้าจอคอม
-        canvas.addEventListener('mousedown', () => drawing = true);
-        canvas.addEventListener('mouseup', () => { ctx.beginPath(); drawing = false; });
-        canvas.addEventListener('mousemove', draw);
+        // 🛠️ ใช้กลไก Pointer Events ระดับสากล (มัดรวมสัญญานเมาส์คอมพิวเตอร์ และ นิ้วมือถือ เข้าหากันในท่อเดียวดื้อๆ)
+        canvas.addEventListener('pointerdown', (e) => {
+            drawing = true;
+            ctx.beginPath();
+            const rect = canvas.getBoundingClientRect();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        });
 
-        function draw(e) {
+        canvas.addEventListener('pointerup', () => {
+            ctx.beginPath();
+            drawing = false;
+        });
+
+        canvas.addEventListener('pointermove', (e) => {
             if (!drawing) return;
             const rect = canvas.getBoundingClientRect();
             ctx.lineWidth = 6;
@@ -161,7 +169,7 @@
             ctx.stroke();
             ctx.beginPath();
             ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-        }
+        });
 
         // ปุ่มเคลียร์กระดาน คืนพื้นที่สีขาว
         document.getElementById('clear-btn').addEventListener('click', () => {
@@ -170,7 +178,7 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         });
 
-        // 💾 ปุ่มสั่งเซฟภาพวาดตบไฟล์ลงคลัง SSD ในคลิกเดียว
+        // 💾 ปุ่มสั่งเซฟภาพวาดตบไฟล์ลงคลัง SSD
         document.getElementById('save-img').addEventListener('click', () => {
             const link = document.createElement('a');
             link.download = 'nuk-drawing.png';
