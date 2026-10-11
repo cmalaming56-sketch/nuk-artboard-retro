@@ -23,7 +23,7 @@
 
     <div class="header">
         <h1>🚀 Nuk-Artboard-Retro [Nuk Script Architecture V3.0 - Live Cloud]</h1>
-        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">เวอร์ชันเชื่อมโลกแท้: ดึงระบบโพสต์รูปภาพดั้งเดิมกลับคืนมา พร้อมซ่อมแซมระบบปุ่มสัมผัสและล็อกหน้าจอสมบูรณ์แบบ</p>
+        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">เวอร์ชันเชื่อมโลกแท้: ซ่อมแซมระบบแกนลากเส้นวาดรูปและกลไกปุ่มกดใช้งานติดลื่นไหล 100% ทั้งคอมและมือถือ</p>
     </div>
 
     <div class="main-container">
@@ -31,7 +31,7 @@
             <canvas id="canvas" width="800" height="400"></canvas>
         </div>
         <div class="tools">
-            <!-- 📱 ปุ่มควบคุมระบบล็อกจอมือถืออัจฉริยะ ซ่อมแซมเรียบร้อย -->
+            <!-- 📱 ปุ่มสั่งล็อกหน้าจอมือถือสไลด์ -->
             <button id="lockScreenBtn" onclick="toggleScreenLock()" style="background:#ff3333; color:#fff; border:none;">🔓 จอมือถือสไลด์ปกติ</button>
             
             <button id="toolPencil" onclick="setTool('pencil')" style="background:#00ffcc; color:#000; border:none; margin-left:15px;">✏️ ดินสอ</button>
@@ -50,7 +50,6 @@
         <textarea id="tweetText" placeholder="สหายอยากแชร์ความคิดเห็นอะไรลงฟีดโลก..."></textarea>
         
         <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-            <!-- 🖼️ ถังระบบแนบไฟล์ภาพดิบดั้งเดิมคัดกลับมาให้ตามสั่งเรียบร้อยครับสหาย -->
             <div>🖼️ แนบไฟล์รูปภาพดั้งเดิม: <input type="file" id="tweetImage" accept="image/*" style="color:#aaa; cursor:pointer;"></div>
             <button onclick="sendTweetToServer()" style="background:#00ffcc; color:#000; border:none; padding:10px 30px; font-weight:bold; border-radius:4px; cursor:pointer;">🚀 โพสต์ลงฟีดโลกสด</button>
         </div>
@@ -98,50 +97,58 @@
             document.getElementById("toolBucket").style.color = (tool === "bucket") ? "#000" : "#fff";
         }
         
-        // --- 🕹️ ระบบวิเคราะห์แกนพิกเนิฟสัมผัส (แก้บั๊กพิกัดอาเรย์ [0] สำเร็จขาดลอย) ---
-        function getPos(e) {
+        // --- 🕹️ โค้ดคำนวณพิกัดลากเส้นคอมพิวเตอร์ ---
+        function getMousePos(e) {
             const r = cvs.getBoundingClientRect();
-            // ดักจับนิ้วแรกสัมผัสหน้าจอมือถือที่ถูกต้องสากล ป้องกันอาการหน้าจอค้างกดไม่ติด
-            if (e.touches && e.touches.length > 0) {
-                return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
-            }
             return { x: e.clientX - r.left, y: e.clientY - r.top };
         }
 
-        function startDraw(e) {
+        // --- 📱 โค้ดคำนวณพิกัดสัญญานนิ้วลากเส้นมือถือ (แก้ไขอาเรย์ [0] สมบูรณ์แบบ 100%) ---
+        function getTouchPos(e) {
+            const r = cvs.getBoundingClientRect();
+            if (e.touches && e.touches.length > 0) {
+                // แกะรอยล็อกพิกัดนิ้วแรกสัมผัสหน้าจอมือถือสากล ป้องกันอาการหน้าจอค้างวาดไม่ติด
+                return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
+            }
+            return { x: 0, y: 0 };
+        }
+
+        // 🟢 กลไกรันระบบฝั่งคอมพิวเตอร์ (เมาส์ลาก)
+        cvs.addEventListener("mousedown", (e) => {
             if (currentTool === "bucket") {
                 ctx.fillStyle = document.getElementById("penColor").value;
                 ctx.fillRect(0, 0, cvs.width, cvs.height);
-            } else { 
-                draw = true; 
-                ctx.beginPath(); 
-                const p = getPos(e); 
-                ctx.moveTo(p.x, p.y); 
-            }
-        }
-
-        function moveDraw(e) {
-            if (isScreenLocked && e.cancelable) { e.preventDefault(); } // ล็อกจอมือถือถาวรเวลารูดนิ้ววาดรูป
+            } else { draw = true; ctx.beginPath(); const p = getMousePos(e); ctx.moveTo(p.x, p.y); }
+        });
+        cvs.addEventListener("mouseup", () => { draw = false; ctx.beginPath(); });
+        cvs.addEventListener("mousemove", (e) => {
             if (!draw || currentTool === "bucket") return;
-            const p = getPos(e);
+            const p = getMousePos(e);
             ctx.lineWidth = penSize.value;
             ctx.lineCap = "round";
             ctx.strokeStyle = (currentTool === "eraser") ? "#ffffff" : document.getElementById("penColor").value;
-            ctx.lineTo(p.x, p.y);
-            ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x, p.y);
-        }
+            ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x, p.y);
+        });
 
-        function stopDraw() { draw = false; ctx.beginPath(); }
-
-        // ดักเมาส์คอม
-        cvs.addEventListener("mousedown", startDraw);
-        cvs.addEventListener("mouseup", stopDraw);
-        cvs.addEventListener("mousemove", moveDraw);
-
-        // ดักนิ้วสัมผัสมือถือสหายและเพื่อนๆ (ฟื้นคืนชีพปุ่มกดลื่นไหลชัวร์ 100%)
-        cvs.addEventListener("touchstart", startDraw, { passive: true });
-        cvs.addEventListener("touchend", stopDraw, { passive: true });
-        cvs.addEventListener("touchmove", moveDraw, { passive: false });
+        // 🟢 กลไกรันระบบฝั่งโทรศัพท์มือถือ (นิ้วสัมผัส)
+        cvs.addEventListener("touchstart", (e) => {
+            if (currentTool === "bucket") {
+                ctx.fillStyle = document.getElementById("penColor").value;
+                ctx.fillRect(0, 0, cvs.width, cvs.height);
+            } else { draw = true; ctx.beginPath(); const p = getTouchPos(e); ctx.moveTo(p.x, p.y); }
+        }, { passive: true });
+        
+        cvs.addEventListener("touchend", () => { draw = false; ctx.beginPath(); }, { passive: true });
+        
+        cvs.addEventListener("touchmove", (e) => {
+            if (isScreenLocked && e.cancelable) { e.preventDefault(); } // สั่งล็อกจอมือถือไม่ให้ไถเลื่อนเวลารูดนิ้ววาดรูป
+            if (!draw || currentTool === "bucket") return;
+            const p = getTouchPos(e);
+            ctx.lineWidth = penSize.value;
+            ctx.lineCap = "round";
+            ctx.strokeStyle = (currentTool === "eraser") ? "#ffffff" : document.getElementById("penColor").value;
+            ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x, p.y);
+        }, { passive: false });
         
         function clearCanvas() { ctx.clearRect(0, 0, cvs.width, cvs.height); initCanvasBackground(); }
         
@@ -158,12 +165,3 @@
                 const res = await fetch(FIREBASE_URL); const data = await res.json();
                 if (data) {
                     let compiledHtml = "";
-                    Object.keys(data).reverse().forEach(key => { compiledHtml += data[key].html; });
-                    feed.innerHTML = compiledHtml;
-                } else { feed.innerHTML = "<div style='padding:10px; color:#888; text-align:center;'>บอร์ดว่างเปล่า พร้อมรับโพสต์แนบภาพชิ้นแรกแล้วค่ะ!</div>"; }
-            } catch (err) { feed.innerHTML = "<div style='color:#888; padding:10px; text-align:center;'>📬 กำลังคอยสัญญาณดึงข้อมูลสดจากฟีดโลก...</div>"; }
-        }
-
-        async function sendTweetToServer() {
-            const txtInput = document.getElementById("tweetText"); const imgInput = document.getElementById("tweetImage");
-            if (!txtInput.value.trim() && imgInput.files.length === 0) return;
