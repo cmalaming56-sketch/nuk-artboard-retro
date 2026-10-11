@@ -1,0 +1,4 @@
+# นุ๊กสคริปต์เวอร์ชัน 2.0 - รื้อระบบบอร์ดให้โหดเหมือน X/Twitter
+BOOT_NUK_BOARD -> Mode: "2D-Canvas"
+CREATE_DRAWING_TOOLS -> Pencil: true | SizeSlider: true | ColorPicker: true
+ENABLE_TWITTER_FEED -> AllowImageUpload: true | AnonymousComment: true
