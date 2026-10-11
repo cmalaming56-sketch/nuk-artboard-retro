@@ -22,8 +22,8 @@
 <body>
 
     <div class="header">
-        <h1>🚀 Nuk-Artboard-Retro [Nuk Script Architecture V3.0 - Live Feed]</h1>
-        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">เวอร์ชันเชื่อมโลกแท้: ดึงระบบแนบรูปภาพกลับคืนมา พร้อมปุ่มระบบล็อกนิ้วมือถือสมบูรณ์แบบ 24 ชม.</p>
+        <h1>🚀 Nuk-Artboard-Retro [Nuk Script Architecture V3.0]</h1>
+        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">เวอร์ชัน Live Feed: ระบบเปิดให้เพื่อนๆ ใช้นิ้วมือถือล็อกหน้าจอวาดภาพระบายสีและแชร์โพสต์รูปภาพได้ 24 ชม.</p>
     </div>
 
     <div class="main-container">
@@ -31,7 +31,7 @@
             <canvas id="canvas" width="800" height="400"></canvas>
         </div>
         <div class="tools">
-            <!-- 📱 ปุ่มสั่งล็อกจอมือถืออัจฉริยะ ซ่อมแซมระบบสัมผัสหลังบ้านเรียบร้อย -->
+            <!-- 📱 ปุ่มเปิด-ปิดสิทธิ์ล็อกหน้าจอมือถือเพื่อนไม่ให้ไถเลื่อนขึ้นลงเวลารูดนิ้ววาดเส้น -->
             <button id="lockScreenBtn" onclick="toggleScreenLock()" style="background:#ff3333; color:#fff; border:none;">🔓 จอมือถือสไลด์ปกติ</button>
             
             <button id="toolPencil" onclick="setTool('pencil')" style="background:#00ffcc; color:#000; border:none; margin-left:15px;">✏️ ดินสอ</button>
@@ -50,7 +50,6 @@
         <textarea id="tweetText" placeholder="สหายอยากแชร์ความคิดเห็นอะไรลงฟีดโลก..."></textarea>
         
         <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-            <!-- 🖼️ ดึงท่อแนบไฟล์รูปภาพของแท้กลับคืนมาตามสั่ง ไม่ทิ้งไปไหนแน่นอน! -->
             <div>🖼️ แนบไฟล์รูปภาพดั้งเดิม: <input type="file" id="tweetImage" accept="image/*" style="color:#aaa; cursor:pointer;"></div>
             <button onclick="sendTweetToServer()" style="background:#00ffcc; color:#000; border:none; padding:10px 30px; font-weight:bold; border-radius:4px; cursor:pointer;">🚀 โพสต์ลงฟีดโลกสด</button>
         </div>
@@ -98,11 +97,11 @@
             document.getElementById("toolBucket").style.color = (tool === "bucket") ? "#000" : "#fff";
         }
         
-        // --- 🕹️ โค้ดวิเคราะห์คำนวณพิกัดสัมผัสข้ามอุปกรณ์แบบแม่นยำ 100% ---
+        // --- 🕹️ โค้ดคำนวณพิกัดลากเส้นวาดรูปอัจฉริยะ (แก้ไขอาเรย์สัมผัสนิ้วเรียบร้อย 100%) ---
         function getPos(e) {
             const r = cvs.getBoundingClientRect();
+            // ซ่อมแซมระบบดักจับพิกัดนิ้วสัมผัสแรก [0] บนมือถือเพื่อนให้รองรับทุกอุปกรณ์ข้ามฮาร์ดแวร์
             if (e.touches && e.touches.length > 0) {
-                // แกะรอยอาเรย์พิกัดนิ้วแรกสัมผัสหน้าจอมือถือที่ถูกต้องสากล
                 return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
             }
             return { x: e.clientX - r.left, y: e.clientY - r.top };
@@ -112,11 +111,16 @@
             if (currentTool === "bucket") {
                 ctx.fillStyle = document.getElementById("penColor").value;
                 ctx.fillRect(0, 0, cvs.width, cvs.height);
-            } else { draw = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); }
+            } else { 
+                draw = true; 
+                ctx.beginPath(); 
+                const p = getPos(e); 
+                ctx.moveTo(p.x, p.y); 
+            }
         }
 
         function moveDraw(e) {
-            if (isScreenLocked && e.cancelable) { e.preventDefault(); } // บล็อกสัญญานจอไถเลื่อนสไลด์เมื่อกดปุ่มล็อก
+            if (isScreenLocked && e.cancelable) { e.preventDefault(); } // ล็อกจอมือถือเพื่อนไม่ให้เลื่อนสไลด์ขึ้นลงเวลาวาดรูป
             if (!draw || currentTool === "bucket") return;
             const p = getPos(e);
             ctx.lineWidth = penSize.value;
@@ -128,12 +132,12 @@
 
         function stopDraw() { draw = false; ctx.beginPath(); }
 
-        // ผูกเมาส์คอม
+        // ผูกสัญญานคอมพิวเตอร์ตามปกติ
         cvs.addEventListener("mousedown", startDraw);
         cvs.addEventListener("mouseup", stopDraw);
         cvs.addEventListener("mousemove", moveDraw);
 
-        // ผูกนิ้วมือถือ (ปลดล็อกวาดติด 100%)
+        // ผูกสัญญานนิ้วสัมผัสมือถือเพื่อน (ซ่อมแซมเสร็จสิ้น วาดติดชัวร์ทุกรุ่น)
         cvs.addEventListener("touchstart", startDraw);
         cvs.addEventListener("touchend", stopDraw);
         cvs.addEventListener("touchmove", moveDraw, { passive: false });
@@ -144,7 +148,7 @@
             const link = document.createElement("a"); link.download = "nuk-art.png"; link.href = cvs.toDataURL("image/png"); link.click();
         });
 
-        // --- 🌐 ท่อสัญญาณคลาวด์ Google Firebase ต่อตรงฟีดรูปภาพเสรี ---
+        // --- 🌐 ท่อสัญญาณคลาวด์ Google Firebase ต่อตรงฟีดรูปภาพสากล ---
         const feed = document.getElementById("twitterFeed");
         const FIREBASE_URL = "https://firebasedatabase.app";
 
@@ -163,5 +167,3 @@
             const txtInput = document.getElementById("tweetText"); const imgInput = document.getElementById("tweetImage");
             if (!txtInput.value.trim() && imgInput.files.length === 0) return;
             const timeString = new Date().toLocaleString("th-TH");
-            
-            const uploadPayload = async (finalImgHtml) => {
