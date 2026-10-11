@@ -2,166 +2,199 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Nuk Script Live Network v3.0</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuk-Artboard-Retro v1.0</title>
     <style>
-        body { margin: 0; padding: 0; background-color: #1a1a1a; color: #ffffff; font-family: sans-serif; }
-        .header { text-align: center; padding: 20px; background: #111; border-bottom: 2px solid #00ffcc; }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: sans-serif;
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: #111;
+            border-bottom: 2px solid #00ffcc;
+        }
         h1 { margin: 0; color: #00ffcc; font-size: 24px; }
-        .main-container { display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .canvas-area { background: #fff; border: 3px dashed #00ffcc; border-radius: 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        canvas { display: block; cursor: crosshair; }
-        .tools { margin-top: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-        button { padding: 8px 16px; background: #333; color: #fff; border: 1px solid #555; border-radius: 4px; font-weight: bold; cursor: pointer; user-select: none; }
-        button:hover { background: #00ffcc; color: #000; border-color: #00ffcc; }
-        .board-container { max-width: 800px; margin: 30px auto; background: #222; padding: 20px; border-radius: 8px; border: 1px solid #333; }
-        textarea { width: 100%; height: 70px; background: #333; color: #fff; border: 1px solid #555; padding: 10px; box-sizing: border-box; resize: none; border-radius: 4px; }
-        .feed { margin-top: 10px; max-height: 400px; overflow-y: auto; background: #151515; padding: 15px; border-radius: 4px; border: 1px solid #2a2a2a; }
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .canvas-area {
+            background: #fff;
+            border: 3px dashed #00ffcc;
+            border-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        canvas {
+            display: block;
+            cursor: crosshair;
+        }
+        .tools {
+            margin-top: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        button {
+            padding: 10px 20px;
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #00ffcc;
+            color: #000;
+            border-color: #00ffcc;
+        }
+        .btn-clear { background: #552222; }
+        .btn-clear:hover { background: #ff3333; color: #fff; }
+        
+        .board-container {
+            width: 800px;
+            margin: 30px auto;
+            background: #222;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            box-sizing: border-box;
+        }
+        h3 { margin-top: 0; color: #00ffcc; border-bottom: 1px solid #333; padding-bottom: 8px; }
+        textarea {
+            width: 100%;
+            height: 80px;
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 10px;
+            box-sizing: border-box;
+            resize: none;
+            font-size: 14px;
+        }
+        .feed {
+            margin-top: 20px;
+            max-height: 250px;
+            overflow-y: auto;
+            background: #151515;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #2a2a2a;
+        }
+        .post-item {
+            padding: 10px;
+            border-bottom: 1px solid #222;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .post-time {
+            color: #888;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>🚀 Nuk-Artboard-Retro [Nuk Script Architecture V3.0 - Live Cloud]</h1>
-        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">เวอร์ชันเชื่อมโลกแท้: ซ่อมแซมระบบแกนลากเส้นวาดรูปและกลไกปุ่มกดใช้งานติดลื่นไหล 100% ทั้งคอมและมือถือ</p>
+        <h1>🚀 Nuk-Artboard-Retro [Nuk Script V1.0]</h1>
+        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">ระบบบอร์ดคอมมูนิตี้: รองรับเมาส์ลากวาดเส้นคมบนคอมพิวเตอร์ และระบบเซฟตบไฟล์ภาพลงเครื่องถาวร</p>
     </div>
 
     <div class="main-container">
+        <!-- 🎨 กระดานผ้าใบวาดรูปสีขาวสะอาดตา -->
         <div class="canvas-area">
-            <canvas id="canvas" width="800" height="400"></canvas>
+            <canvas id="nukCanvas" width="800" height="450"></canvas>
         </div>
+        
         <div class="tools">
-            <!-- 📱 ปุ่มสั่งล็อกหน้าจอมือถือสไลด์ -->
-            <button id="lockScreenBtn" onclick="toggleScreenLock()" style="background:#ff3333; color:#fff; border:none;">🔓 จอมือถือสไลด์ปกติ</button>
-            
-            <button id="toolPencil" onclick="setTool('pencil')" style="background:#00ffcc; color:#000; border:none; margin-left:15px;">✏️ ดินสอ</button>
-            <button id="toolEraser" onclick="setTool('eraser')">🧼 ยางลบ</button>
-            <button id="toolBucket" onclick="setTool('bucket')">🪣 ถังสี</button>
-            🎨 สี: <input type="color" id="penColor" value="#1a1a1a" style="cursor:pointer;">
-            📏 ขนาด: <input type="range" id="penSize" min="1" max="50" value="6" style="cursor:pointer;">
-            <span id="sizeDisplay" style="color:#00ffcc; font-weight:bold;">6px</span>
-            <button id="saveImgBtn" style="margin-left:20px;">💾 เซฟรูปภาพลง SSD</button>
-            <button onclick="clearCanvas()" style="background:#522;">🧹 ล้างกระดาน</button>
+            <!-- 💾 ปุ่มสั่งเซฟล็อกรูปภาพลงเครื่องฮาร์ดดิสก์ SSD ของแท้ดั้งเดิม -->
+            <button id="save-img">💾 เซฟรูปภาพลง SSD</button>
+            <button id="clear-btn" class="btn-clear">🧹 เคลียร์หน้าจอ</button>
         </div>
     </div>
 
+    <!-- 💬 บอร์ดแลกเปลี่ยนข้อมูลคอมเมนต์สไตล์คลาสสิก -->
     <div class="board-container">
-        <h3>💬 กระดานโพสต์ฟีดข้อความพร้อมอัปโหลดรูปภาพ (X / Reddit Global Live)</h3>
-        <textarea id="tweetText" placeholder="สหายอยากแชร์ความคิดเห็นอะไรลงฟีดโลก..."></textarea>
-        
-        <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-            <div>🖼️ แนบไฟล์รูปภาพดั้งเดิม: <input type="file" id="tweetImage" accept="image/*" style="color:#aaa; cursor:pointer;"></div>
-            <button onclick="sendTweetToServer()" style="background:#00ffcc; color:#000; border:none; padding:10px 30px; font-weight:bold; border-radius:4px; cursor:pointer;">🚀 โพสต์ลงฟีดโลกสด</button>
-        </div>
-        
-        <div style="margin-top:15px; text-align:left; display:flex; justify-content:space-between; align-items:center;">
-            <span style="color:#aaa; font-size:12px;">🔄 ระบบดึงข้อมูลสดข้ามระบบอัตโนมัติทุกๆ 15 วินาที</span>
-            <button onclick="loadCloudTweets()" style="color:#00ffcc; border-color:#00ffcc; font-size:12px; background:none; cursor:pointer;">🔄 ดึงฟีดสดเดี๋ยวนี้</button>
-        </div>
-        
-        <div class="feed" id="twitterFeed">
-            <div style="padding:10px; color:#888; text-align:center;">กำลังเชื่อมต่อท่อรับส่งไฟล์รูปภาพออนไลน์สด...</div>
+        <h3>💬 กระดานส่งข้อมูลคอมเมนต์</h3>
+        <textarea id="postInput" placeholder="พิมพ์ข้อความส่งเข้าบอร์ดที่นี่..."></textarea>
+        <button id="submitPost" style="margin-top: 10px; background: #00ffcc; color: #000; border: none;">ส่งข้อมูลเข้าบอร์ด</button>
+
+        <div class="feed" id="boardFeed">
+            <div class="post-item">
+                <div class="post-time">ระบบฐานข้อมูลเสถียร: บ่ายวันที่ 11 ตุลาคม 2569</div>
+                🤖 ระบบ Nuk Script V1.0 ฟื้นคืนชีพกลับมาทำงานลื่นไหลแล้วค่ะ! ลองวาดรูปและพิมพ์แชทส่งข้อความดูได้เลยค่ะสหาย!
+            </div>
         </div>
     </div>
 
     <script>
-        const cvs = document.getElementById("canvas");
-        const ctx = cvs.getContext("2d");
-        let draw = false; let currentTool = "pencil";
-        let isScreenLocked = false; 
+        // --- แกนสมองกลกลไกการวาดรูปดั้งเดิมบนคอมพิวเตอร์ ---
+        const canvas = document.getElementById('nukCanvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
 
-        function initCanvasBackground() { ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, cvs.width, cvs.height); }
-        initCanvasBackground();
-        
-        const penSize = document.getElementById("penSize");
-        const sizeDisplay = document.getElementById("sizeDisplay");
-        penSize.addEventListener("input", (e) => { sizeDisplay.textContent = e.target.value + "px"; });
-        
-        function toggleScreenLock() {
-            isScreenLocked = !isScreenLocked;
-            const btn = document.getElementById("lockScreenBtn");
-            if (isScreenLocked) {
-                btn.textContent = "🔒 ล็อกจอมือถือไม่ให้เลื่อนแล้ว"; btn.style.background = "#00ffcc"; btn.style.color = "#000";
-            } else {
-                btn.textContent = "🔓 จอมือถือสไลด์ปกติ"; btn.style.background = "#ff3333"; btn.style.color = "#fff";
-            }
+        // สั่งระบายสีขาวรองพื้นผ้าใบแต่เริ่มแรก ป้องกันปัญหาเซฟแล้วภาพกลายเป็นสีดำ
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // ดักจับสัญญาณเมาส์คลิกลากบนหน้าจอคอม
+        canvas.addEventListener('mousedown', () => drawing = true);
+        canvas.addEventListener('mouseup', () => { ctx.beginPath(); drawing = false; });
+        canvas.addEventListener('mousemove', draw);
+
+        function draw(e) {
+            if (!drawing) return;
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineWidth = 6;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#1a1a1a'; // สีหมึกดำคมชัด
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
         }
 
-        function setTool(tool) {
-            currentTool = tool;
-            document.getElementById("toolPencil").style.background = (tool === "pencil") ? "#00ffcc" : "#333";
-            document.getElementById("toolPencil").style.color = (tool === "pencil") ? "#000" : "#fff";
-            document.getElementById("toolEraser").style.background = (tool === "eraser") ? "#00ffcc" : "#333";
-            document.getElementById("toolEraser").style.color = (tool === "eraser") ? "#000" : "#fff";
-            document.getElementById("toolBucket").style.background = (tool === "bucket") ? "#00ffcc" : "#333";
-            document.getElementById("toolBucket").style.color = (tool === "bucket") ? "#000" : "#fff";
-        }
-        
-        // --- 🕹️ โค้ดคำนวณพิกัดลากเส้นคอมพิวเตอร์ ---
-        function getMousePos(e) {
-            const r = cvs.getBoundingClientRect();
-            return { x: e.clientX - r.left, y: e.clientY - r.top };
-        }
-
-        // --- 📱 โค้ดคำนวณพิกัดสัญญานนิ้วลากเส้นมือถือ (แก้ไขอาเรย์ [0] สมบูรณ์แบบ 100%) ---
-        function getTouchPos(e) {
-            const r = cvs.getBoundingClientRect();
-            if (e.touches && e.touches.length > 0) {
-                // แกะรอยล็อกพิกัดนิ้วแรกสัมผัสหน้าจอมือถือสากล ป้องกันอาการหน้าจอค้างวาดไม่ติด
-                return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
-            }
-            return { x: 0, y: 0 };
-        }
-
-        // 🟢 กลไกรันระบบฝั่งคอมพิวเตอร์ (เมาส์ลาก)
-        cvs.addEventListener("mousedown", (e) => {
-            if (currentTool === "bucket") {
-                ctx.fillStyle = document.getElementById("penColor").value;
-                ctx.fillRect(0, 0, cvs.width, cvs.height);
-            } else { draw = true; ctx.beginPath(); const p = getMousePos(e); ctx.moveTo(p.x, p.y); }
-        });
-        cvs.addEventListener("mouseup", () => { draw = false; ctx.beginPath(); });
-        cvs.addEventListener("mousemove", (e) => {
-            if (!draw || currentTool === "bucket") return;
-            const p = getMousePos(e);
-            ctx.lineWidth = penSize.value;
-            ctx.lineCap = "round";
-            ctx.strokeStyle = (currentTool === "eraser") ? "#ffffff" : document.getElementById("penColor").value;
-            ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x, p.y);
+        // ปุ่มเคลียร์กระดาน คืนพื้นที่สีขาว
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
         });
 
-        // 🟢 กลไกรันระบบฝั่งโทรศัพท์มือถือ (นิ้วสัมผัส)
-        cvs.addEventListener("touchstart", (e) => {
-            if (currentTool === "bucket") {
-                ctx.fillStyle = document.getElementById("penColor").value;
-                ctx.fillRect(0, 0, cvs.width, cvs.height);
-            } else { draw = true; ctx.beginPath(); const p = getTouchPos(e); ctx.moveTo(p.x, p.y); }
-        }, { passive: true });
-        
-        cvs.addEventListener("touchend", () => { draw = false; ctx.beginPath(); }, { passive: true });
-        
-        cvs.addEventListener("touchmove", (e) => {
-            if (isScreenLocked && e.cancelable) { e.preventDefault(); } // สั่งล็อกจอมือถือไม่ให้ไถเลื่อนเวลารูดนิ้ววาดรูป
-            if (!draw || currentTool === "bucket") return;
-            const p = getTouchPos(e);
-            ctx.lineWidth = penSize.value;
-            ctx.lineCap = "round";
-            ctx.strokeStyle = (currentTool === "eraser") ? "#ffffff" : document.getElementById("penColor").value;
-            ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x, p.y);
-        }, { passive: false });
-        
-        function clearCanvas() { ctx.clearRect(0, 0, cvs.width, cvs.height); initCanvasBackground(); }
-        
-        document.getElementById("saveImgBtn").addEventListener("click", () => {
-            const link = document.createElement("a"); link.download = "nuk-art.png"; link.href = cvs.toDataURL("image/png"); link.click();
+        // 💾 ปุ่มสั่งเซฟภาพวาดตบไฟล์ลงคลัง SSD ในคลิกเดียว
+        document.getElementById('save-img').addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'nuk-drawing.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
         });
 
-        // --- 🌐 ท่อสัญญาณกูเกิลคลาวด์ Google Firebase คืนระบบส่งรูปภาพแท้ ---
-        const feed = document.getElementById("twitterFeed");
-        const FIREBASE_URL = "https://firebasedatabase.app";
+        // --- แกนสมองกลไกบอร์ดคอมเมนต์รับส่งข้อมูลแชท ---
+        const postInput = document.getElementById('postInput');
+        const submitPost = document.getElementById('submitPost');
+        const boardFeed = document.getElementById('boardFeed');
 
-        async function loadCloudTweets() {
-            try {
-                const res = await fetch(FIREBASE_URL); const data = await res.json();
-                if (data) {
-                    let compiledHtml = "";
+        submitPost.addEventListener('click', () => {
+            const text = postInput.value.trim();
+            if (!text) return;
+
+            const timeString = new Date().toLocaleString('th-TH');
+            const newPost = document.createElement('div');
+            newPost.className = 'post-item';
+            newPost.innerHTML = `<div class="post-time">${timeString}</div> 📩 สหายส่งมา: ${text}`;
+            
+            boardFeed.insertBefore(newPost, boardFeed.firstChild);
+            postInput.value = '';
+        });
+    </script>
+</body>
+</html>
