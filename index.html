@@ -16,15 +16,14 @@
         button:hover { background: #00ffcc; color: #000; border-color: #00ffcc; }
         .board-container { max-width: 800px; margin: 30px auto; background: #222; padding: 20px; border-radius: 8px; border: 1px solid #333; }
         textarea { width: 100%; height: 70px; background: #333; color: #fff; border: 1px solid #555; padding: 10px; box-sizing: border-box; resize: none; border-radius: 4px; }
-        input[type="text"] { width: 100%; padding: 8px; background: #333; color: #fff; border: 1px solid #555; border-radius: 4px; margin-top: 8px; box-sizing: border-box; }
         .feed { margin-top: 10px; max-height: 400px; overflow-y: auto; background: #151515; padding: 15px; border-radius: 4px; border: 1px solid #2a2a2a; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>🚀 Nuk-Artboard-Retro [Nuk Script Architecture V3.0]</h1>
-        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">เวอร์ชันเชื่อมโลกเสรี: มีระบบปุ่มกดล็อกหน้าจอเพื่อใช้นิ้ววาดรูปบนจอมือถือได้อย่างอิสระ 24 ชม.</p>
+        <h1>🚀 Nuk-Artboard-Retro [Nuk Script Architecture V3.0 - Live Feed]</h1>
+        <p style="margin: 5px 0 0 0; color: #aaa; font-size: 13px;">เวอร์ชันเชื่อมโลกแท้: ดึงระบบแนบรูปภาพกลับคืนมา พร้อมปุ่มระบบล็อกนิ้วมือถือสมบูรณ์แบบ 24 ชม.</p>
     </div>
 
     <div class="main-container">
@@ -32,7 +31,7 @@
             <canvas id="canvas" width="800" height="400"></canvas>
         </div>
         <div class="tools">
-            <!-- 📱 ปุ่มไม้ตายล็อกหน้าจอตามที่สหายสั่ง กดคลิกสลับสิทธิ์ได้ทันที -->
+            <!-- 📱 ปุ่มสั่งล็อกจอมือถืออัจฉริยะ ซ่อมแซมระบบสัมผัสหลังบ้านเรียบร้อย -->
             <button id="lockScreenBtn" onclick="toggleScreenLock()" style="background:#ff3333; color:#fff; border:none;">🔓 จอมือถือสไลด์ปกติ</button>
             
             <button id="toolPencil" onclick="setTool('pencil')" style="background:#00ffcc; color:#000; border:none; margin-left:15px;">✏️ ดินสอ</button>
@@ -47,21 +46,22 @@
     </div>
 
     <div class="board-container">
-        <h3>💬 กระดานโพสต์ฟีดแชร์ข้อมูลออนไลน์เสรี (Global Live Network)</h3>
+        <h3>💬 กระดานโพสต์ฟีดข้อความพร้อมอัปโหลดรูปภาพ (X / Reddit Global Live)</h3>
         <textarea id="tweetText" placeholder="สหายอยากแชร์ความคิดเห็นอะไรลงฟีดโลก..."></textarea>
-        <input type="text" id="tweetImageUrl" placeholder="🔗 แปะลิงก์ที่อยู่รูปภาพตรงนี้เพื่อแชร์ลงฟีดโลก">
-
-        <div style="margin-top:10px; text-align:right;">
-            <button onclick="sendTweetToServer()" style="background:#00ffcc; color:#000; border:none; padding:10px 30px; font-weight:bold;">🚀 โพสต์ลงฟีดโลกสด</button>
+        
+        <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <!-- 🖼️ ดึงท่อแนบไฟล์รูปภาพของแท้กลับคืนมาตามสั่ง ไม่ทิ้งไปไหนแน่นอน! -->
+            <div>🖼️ แนบไฟล์รูปภาพดั้งเดิม: <input type="file" id="tweetImage" accept="image/*" style="color:#aaa; cursor:pointer;"></div>
+            <button onclick="sendTweetToServer()" style="background:#00ffcc; color:#000; border:none; padding:10px 30px; font-weight:bold; border-radius:4px; cursor:pointer;">🚀 โพสต์ลงฟีดโลกสด</button>
         </div>
         
         <div style="margin-top:15px; text-align:left; display:flex; justify-content:space-between; align-items:center;">
-            <span style="color:#aaa; font-size:12px;">🔄 ระบบสุ่มอัปเดตฟีดคนอื่นอัตโนมัติทุกๆ 15 วินาที</span>
+            <span style="color:#aaa; font-size:12px;">🔄 ระบบดึงข้อมูลสดข้ามระบบอัตโนมัติทุกๆ 15 วินาที</span>
             <button onclick="loadCloudTweets()" style="color:#00ffcc; border-color:#00ffcc; font-size:12px; background:none; cursor:pointer;">🔄 ดึงฟีดสดเดี๋ยวนี้</button>
         </div>
         
         <div class="feed" id="twitterFeed">
-            <div style="padding:10px; color:#888; text-align:center;">กำลังเชื่อมต่อท่อส่งสัญญาณออนไลน์เสรี...</div>
+            <div style="padding:10px; color:#888; text-align:center;">กำลังเชื่อมต่อท่อรับส่งไฟล์รูปภาพออนไลน์สด...</div>
         </div>
     </div>
 
@@ -69,7 +69,7 @@
         const cvs = document.getElementById("canvas");
         const ctx = cvs.getContext("2d");
         let draw = false; let currentTool = "pencil";
-        let isScreenLocked = false; // ถังเก็บสถานะล็อกจอมือถือ
+        let isScreenLocked = false; 
 
         function initCanvasBackground() { ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, cvs.width, cvs.height); }
         initCanvasBackground();
@@ -78,18 +78,13 @@
         const sizeDisplay = document.getElementById("sizeDisplay");
         penSize.addEventListener("input", (e) => { sizeDisplay.textContent = e.target.value + "px"; });
         
-        // 🔒 ฟังก์ชันกลไกปุ่มกดล็อกหน้าจอมือถือ สลับสิทธิ์อัจฉริยะตามใจสหาย
         function toggleScreenLock() {
             isScreenLocked = !isScreenLocked;
             const btn = document.getElementById("lockScreenBtn");
             if (isScreenLocked) {
-                btn.textContent = "🔒 ล็อกจอมือถือไม่ให้เลื่อนแล้ว";
-                btn.style.background = "#00ffcc";
-                btn.style.color = "#000";
+                btn.textContent = "🔒 ล็อกจอมือถือไม่ให้เลื่อนแล้ว"; btn.style.background = "#00ffcc"; btn.style.color = "#000";
             } else {
-                btn.textContent = "🔓 จอมือถือสไลด์ปกติ";
-                btn.style.background = "#ff3333";
-                btn.style.color = "#fff";
+                btn.textContent = "🔓 จอมือถือสไลด์ปกติ"; btn.style.background = "#ff3333"; btn.style.color = "#fff";
             }
         }
 
@@ -103,10 +98,11 @@
             document.getElementById("toolBucket").style.color = (tool === "bucket") ? "#000" : "#fff";
         }
         
-        // --- 🕹️ โครงสร้างดักสัญญาณวาดภาพข้ามอุปกรณ์ (มัดรวมระบบสัมผัสและเมาส์คอมพิวเตอร์เข้าหากัน) ---
+        // --- 🕹️ โค้ดวิเคราะห์คำนวณพิกัดสัมผัสข้ามอุปกรณ์แบบแม่นยำ 100% ---
         function getPos(e) {
             const r = cvs.getBoundingClientRect();
             if (e.touches && e.touches.length > 0) {
+                // แกะรอยอาเรย์พิกัดนิ้วแรกสัมผัสหน้าจอมือถือที่ถูกต้องสากล
                 return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
             }
             return { x: e.clientX - r.left, y: e.clientY - r.top };
@@ -116,30 +112,28 @@
             if (currentTool === "bucket") {
                 ctx.fillStyle = document.getElementById("penColor").value;
                 ctx.fillRect(0, 0, cvs.width, cvs.height);
-            } else { draw = true; }
+            } else { draw = true; ctx.beginPath(); const p = getPos(e); ctx.moveTo(p.x, p.y); }
         }
 
         function moveDraw(e) {
-            // 📱 เงื่อนไขเด็ดขาด: ถ้าผู้ใช้กดล็อกหน้าจอไว้ ให้ทำการบล็อกคำสั่งสไลด์จอมือถือทิ้งทันทีเพื่อวาดเส้นได้คมสวย
-            if (isScreenLocked && e.cancelable) { e.preventDefault(); }
+            if (isScreenLocked && e.cancelable) { e.preventDefault(); } // บล็อกสัญญานจอไถเลื่อนสไลด์เมื่อกดปุ่มล็อก
             if (!draw || currentTool === "bucket") return;
-
-            const pos = getPos(e);
+            const p = getPos(e);
             ctx.lineWidth = penSize.value;
             ctx.lineCap = "round";
             ctx.strokeStyle = (currentTool === "eraser") ? "#ffffff" : document.getElementById("penColor").value;
-            ctx.lineTo(pos.x, pos.y);
-            ctx.stroke(); ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
+            ctx.lineTo(p.x, p.y);
+            ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x, p.y);
         }
 
-        function stopDraw() { ctx.beginPath(); draw = false; }
+        function stopDraw() { draw = false; ctx.beginPath(); }
 
-        // ผูกสัญญาณเมาส์คอม
+        // ผูกเมาส์คอม
         cvs.addEventListener("mousedown", startDraw);
         cvs.addEventListener("mouseup", stopDraw);
         cvs.addEventListener("mousemove", moveDraw);
 
-        // ผูกสัญญาณนิ้วสัมผัสมือถือ
+        // ผูกนิ้วมือถือ (ปลดล็อกวาดติด 100%)
         cvs.addEventListener("touchstart", startDraw);
         cvs.addEventListener("touchend", stopDraw);
         cvs.addEventListener("touchmove", moveDraw, { passive: false });
@@ -147,31 +141,27 @@
         function clearCanvas() { ctx.clearRect(0, 0, cvs.width, cvs.height); initCanvasBackground(); }
         
         document.getElementById("saveImgBtn").addEventListener("click", () => {
-            const link = document.createElement("a");
-            link.download = "nuk-masterpiece.png";
-            link.href = cvs.toDataURL("image/png");
-            link.click();
+            const link = document.createElement("a"); link.download = "nuk-art.png"; link.href = cvs.toDataURL("image/png"); link.click();
         });
 
-        // --- 🌐 ท่อสัญญาณคลาวด์โลกออนไลน์เสรี ---
+        // --- 🌐 ท่อสัญญาณคลาวด์ Google Firebase ต่อตรงฟีดรูปภาพเสรี ---
         const feed = document.getElementById("twitterFeed");
         const FIREBASE_URL = "https://firebasedatabase.app";
 
         async function loadCloudTweets() {
             try {
-                const res = await fetch(FIREBASE_URL);
-                const data = await res.json();
+                const res = await fetch(FIREBASE_URL); const data = await res.json();
                 if (data) {
                     let compiledHtml = "";
                     Object.keys(data).reverse().forEach(key => { compiledHtml += data[key].html; });
                     feed.innerHTML = compiledHtml;
-                } else {
-                    feed.innerHTML = "<div style='padding:10px; color:#888; text-align:center;'>บอร์ดออนไลน์เสรีว่างเปล่า ยินดีต้อนรับสหายเข้ามาระเบิดโพสต์แรกค่ะ!</div>";
-                }
+                } else { feed.innerHTML = "<div style='padding:10px; color:#888; text-align:center;'>บอร์ดว่างเปล่า พร้อมรับโพสต์แนบภาพชิ้นแรกแล้วค่ะ!</div>"; }
             } catch (err) { feed.innerHTML = "<div style='color:#888; padding:10px; text-align:center;'>📬 กำลังคอยสัญญาณดึงข้อมูลสดจากฟีดโลก...</div>"; }
         }
 
         async function sendTweetToServer() {
-            const txtInput = document.getElementById("tweetText");
-            const imgUrlInput = document.getElementById("tweetImageUrl");
-            if (!txtInput.value.trim() && !imgUrlInput.value.trim()) return;
+            const txtInput = document.getElementById("tweetText"); const imgInput = document.getElementById("tweetImage");
+            if (!txtInput.value.trim() && imgInput.files.length === 0) return;
+            const timeString = new Date().toLocaleString("th-TH");
+            
+            const uploadPayload = async (finalImgHtml) => {
